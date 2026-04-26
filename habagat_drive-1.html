@@ -1,0 +1,1872 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HABAGAT BLIMP — Project Drive</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Syne:wght@400;500;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0d14;
+    --surface: #0f1420;
+    --surface2: #141926;
+    --surface3: #1a2030;
+    --border: #1e2840;
+    --border2: #263050;
+    --amber: #f5a623;
+    --amber-dim: #c47e10;
+    --amber-glow: rgba(245,166,35,0.12);
+    --amber-glow2: rgba(245,166,35,0.06);
+    --blue: #3d7fff;
+    --blue-dim: #2a5fcc;
+    --green: #2ecc71;
+    --green-dim: rgba(46,204,113,0.15);
+    --red: #e74c3c;
+    --red-dim: rgba(231,76,60,0.15);
+    --yellow: #f1c40f;
+    --yellow-dim: rgba(241,196,15,0.15);
+    --purple: #9b59b6;
+    --purple-dim: rgba(155,89,182,0.15);
+    --text: #e8eaf0;
+    --text2: #8892a4;
+    --text3: #4a5568;
+    --mono: 'Space Mono', monospace;
+    --display: 'Syne', sans-serif;
+    --body: 'DM Sans', sans-serif;
+  }
+
+  * { margin:0; padding:0; box-sizing:border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--body);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ── GRID BACKGROUND ── */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(245,166,35,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(245,166,35,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* ── SIDEBAR ── */
+  .sidebar {
+    position: fixed;
+    left: 0; top: 0; bottom: 0;
+    width: 240px;
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    z-index: 100;
+    overflow-y: auto;
+  }
+
+  .sidebar-logo {
+    padding: 20px 20px 16px;
+    border-bottom: 1px solid var(--border);
+  }
+  .logo-tag {
+    font-family: var(--mono);
+    font-size: 9px;
+    color: var(--amber);
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+  .logo-name {
+    font-family: var(--display);
+    font-size: 17px;
+    font-weight: 800;
+    color: var(--text);
+    letter-spacing: -0.5px;
+    line-height: 1.1;
+  }
+  .logo-sub {
+    font-family: var(--mono);
+    font-size: 9px;
+    color: var(--text3);
+    margin-top: 4px;
+  }
+
+  .sidebar-section {
+    padding: 16px 14px 6px;
+  }
+  .sidebar-section-label {
+    font-family: var(--mono);
+    font-size: 9px;
+    color: var(--text3);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+    padding-left: 6px;
+  }
+
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 10px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 13px;
+    color: var(--text2);
+    transition: all 0.15s;
+    position: relative;
+    font-weight: 400;
+  }
+  .nav-item:hover { background: var(--surface3); color: var(--text); }
+  .nav-item.active {
+    background: var(--amber-glow);
+    color: var(--amber);
+    font-weight: 500;
+  }
+  .nav-item.active::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 4px; bottom: 4px;
+    width: 2px;
+    background: var(--amber);
+    border-radius: 2px;
+  }
+  .nav-icon { font-size: 14px; width: 18px; text-align: center; }
+  .nav-badge {
+    margin-left: auto;
+    background: var(--amber);
+    color: #000;
+    font-family: var(--mono);
+    font-size: 9px;
+    font-weight: 700;
+    padding: 1px 5px;
+    border-radius: 3px;
+  }
+
+  .sidebar-divider { height: 1px; background: var(--border); margin: 8px 14px; }
+
+  .sidebar-stats {
+    padding: 12px 14px;
+    margin-top: auto;
+    border-top: 1px solid var(--border);
+  }
+  .stat-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--text3);
+    padding: 3px 0;
+  }
+  .stat-row span:last-child { color: var(--text2); }
+
+  /* ── MAIN ── */
+  .main {
+    margin-left: 240px;
+    min-height: 100vh;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* ── TOPBAR ── */
+  .topbar {
+    position: sticky;
+    top: 0;
+    background: rgba(10,13,20,0.9);
+    backdrop-filter: blur(16px);
+    border-bottom: 1px solid var(--border);
+    padding: 12px 28px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    z-index: 50;
+  }
+
+  .search-wrap {
+    flex: 1;
+    max-width: 420px;
+    position: relative;
+  }
+  .search-icon {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text3);
+    font-size: 13px;
+  }
+  .search-input {
+    width: 100%;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 8px 12px 8px 34px;
+    border-radius: 8px;
+    font-family: var(--mono);
+    font-size: 12px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .search-input::placeholder { color: var(--text3); }
+  .search-input:focus { border-color: var(--amber-dim); }
+
+  .topbar-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-left: auto;
+  }
+
+  .sort-select {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--text2);
+    padding: 7px 10px;
+    border-radius: 6px;
+    font-family: var(--mono);
+    font-size: 11px;
+    outline: none;
+    cursor: pointer;
+  }
+  .sort-select:focus { border-color: var(--amber-dim); }
+
+  .btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 14px;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    font-family: var(--mono);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    transition: all 0.15s;
+  }
+  .btn-primary {
+    background: var(--amber);
+    color: #000;
+  }
+  .btn-primary:hover { background: #ffc043; }
+  .btn-ghost {
+    background: var(--surface2);
+    color: var(--text2);
+    border: 1px solid var(--border);
+  }
+  .btn-ghost:hover { border-color: var(--border2); color: var(--text); }
+
+  .view-toggle {
+    display: flex;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    overflow: hidden;
+  }
+  .view-btn {
+    padding: 7px 10px;
+    border: none;
+    background: transparent;
+    color: var(--text3);
+    cursor: pointer;
+    transition: all 0.15s;
+    font-size: 13px;
+  }
+  .view-btn.active { background: var(--surface3); color: var(--amber); }
+
+  /* ── BREADCRUMB ── */
+  .breadcrumb-bar {
+    padding: 12px 28px 0;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text3);
+  }
+  .breadcrumb-item {
+    cursor: pointer;
+    color: var(--text2);
+    transition: color 0.15s;
+  }
+  .breadcrumb-item:hover { color: var(--amber); }
+  .breadcrumb-sep { color: var(--text3); }
+  .breadcrumb-current { color: var(--amber); }
+
+  /* ── CONTENT AREA ── */
+  .content {
+    padding: 20px 28px 40px;
+  }
+
+  .folder-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 20px;
+  }
+  .folder-title {
+    font-family: var(--display);
+    font-size: 22px;
+    font-weight: 800;
+    color: var(--text);
+    letter-spacing: -0.5px;
+  }
+  .folder-meta {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--text3);
+    margin-top: 4px;
+    display: flex;
+    gap: 16px;
+  }
+  .folder-meta span { display: flex; align-items: center; gap: 4px; }
+
+  /* ── FLAG FILTER PILLS ── */
+  .flag-filters {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin-bottom: 18px;
+  }
+  .flag-pill {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    padding: 5px 12px;
+    border-radius: 20px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--text2);
+    font-size: 11px;
+    font-family: var(--mono);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .flag-pill:hover { border-color: var(--border2); color: var(--text); }
+  .flag-pill.active { border-color: transparent; }
+  .flag-pill .dot { width: 6px; height: 6px; border-radius: 50%; }
+
+  /* ── FILE TABLE (LIST VIEW) ── */
+  .file-table-wrap {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+  .file-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  .file-table th {
+    background: var(--surface2);
+    padding: 10px 16px;
+    text-align: left;
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--text3);
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    border-bottom: 1px solid var(--border);
+    cursor: pointer;
+    user-select: none;
+    white-space: nowrap;
+  }
+  .file-table th:hover { color: var(--text2); }
+  .file-table th.sorted { color: var(--amber); }
+  .sort-arrow { margin-left: 4px; opacity: 0.6; }
+
+  .file-table td {
+    padding: 11px 16px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: middle;
+    font-size: 13px;
+  }
+  .file-table tr:last-child td { border-bottom: none; }
+  .file-table tr.file-row {
+    cursor: pointer;
+    transition: background 0.12s;
+  }
+  .file-table tr.file-row:hover { background: var(--surface2); }
+  .file-table tr.file-row:hover .row-actions { opacity: 1; }
+
+  .file-icon-name {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .file-icon {
+    width: 32px; height: 32px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    flex-shrink: 0;
+  }
+  .file-name-wrap { display: flex; flex-direction: column; }
+  .file-name {
+    font-weight: 500;
+    color: var(--text);
+    font-size: 13px;
+    line-height: 1.2;
+  }
+  .file-path {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--text3);
+    margin-top: 2px;
+  }
+
+  .file-type-badge {
+    display: inline-block;
+    padding: 2px 7px;
+    border-radius: 4px;
+    font-family: var(--mono);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+  }
+
+  .file-date {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text2);
+  }
+
+  .file-owner {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text2);
+  }
+
+  /* ── FLAGS ── */
+  .flag-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-family: var(--mono);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+    cursor: pointer;
+    transition: all 0.15s;
+    border: 1px solid transparent;
+  }
+  .flag-badge:hover { filter: brightness(1.2); }
+
+  .flag-done { background: var(--green-dim); color: var(--green); border-color: rgba(46,204,113,0.3); }
+  .flag-todo { background: var(--yellow-dim); color: var(--yellow); border-color: rgba(241,196,15,0.3); }
+  .flag-needed { background: var(--red-dim); color: var(--red); border-color: rgba(231,76,60,0.3); }
+  .flag-review { background: var(--purple-dim); color: var(--purple); border-color: rgba(155,89,182,0.3); }
+  .flag-wip { background: rgba(61,127,255,0.15); color: var(--blue); border-color: rgba(61,127,255,0.3); }
+  .flag-template { background: rgba(245,166,35,0.1); color: var(--amber); border-color: rgba(245,166,35,0.3); }
+  .flag-none { background: var(--surface3); color: var(--text3); border-color: var(--border); }
+
+  .row-actions {
+    display: flex;
+    gap: 4px;
+    opacity: 0;
+    transition: opacity 0.15s;
+  }
+  .row-action-btn {
+    background: var(--surface3);
+    border: 1px solid var(--border);
+    color: var(--text2);
+    width: 26px; height: 26px;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 12px;
+    transition: all 0.12s;
+  }
+  .row-action-btn:hover { border-color: var(--amber); color: var(--amber); }
+
+  /* ── GRID VIEW ── */
+  .file-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 12px;
+  }
+  .grid-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px 14px 12px;
+    cursor: pointer;
+    transition: all 0.15s;
+    position: relative;
+    overflow: hidden;
+  }
+  .grid-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+  .grid-card:hover { border-color: var(--border2); background: var(--surface2); transform: translateY(-1px); }
+  .grid-card:hover::before { opacity: 1; }
+
+  .grid-icon {
+    width: 44px; height: 44px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    margin-bottom: 10px;
+  }
+  .grid-name {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text);
+    line-height: 1.3;
+    margin-bottom: 6px;
+    word-break: break-word;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .grid-meta {
+    font-family: var(--mono);
+    font-size: 9px;
+    color: var(--text3);
+    margin-bottom: 8px;
+  }
+  .grid-flag { margin-top: 6px; }
+
+  /* ── FOLDER SECTION ── */
+  .section-label {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--text3);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+    margin-top: 24px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .section-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  /* ── MODAL ── */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.7);
+    backdrop-filter: blur(4px);
+    z-index: 200;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s;
+  }
+  .modal-overlay.open { opacity: 1; pointer-events: all; }
+  .modal {
+    background: var(--surface2);
+    border: 1px solid var(--border2);
+    border-radius: 12px;
+    width: 480px;
+    max-width: 90vw;
+    padding: 24px;
+    transform: scale(0.95) translateY(8px);
+    transition: transform 0.2s;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+  }
+  .modal-overlay.open .modal { transform: scale(1) translateY(0); }
+  .modal-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 18px;
+  }
+  .modal-title {
+    font-family: var(--display);
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--text);
+  }
+  .modal-close {
+    background: var(--surface3);
+    border: 1px solid var(--border);
+    color: var(--text2);
+    width: 28px; height: 28px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 14px;
+    transition: all 0.12s;
+  }
+  .modal-close:hover { border-color: var(--amber); color: var(--amber); }
+
+  .modal-file-icon {
+    width: 52px; height: 52px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    margin-bottom: 14px;
+  }
+  .modal-filename {
+    font-family: var(--display);
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 4px;
+    word-break: break-word;
+  }
+  .modal-filepath {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--text3);
+    margin-bottom: 16px;
+  }
+
+  .detail-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 18px;
+  }
+  .detail-item { display: flex; flex-direction: column; gap: 3px; }
+  .detail-label { font-family: var(--mono); font-size: 9px; color: var(--text3); letter-spacing: 1px; text-transform: uppercase; }
+  .detail-value { font-family: var(--mono); font-size: 12px; color: var(--text2); }
+
+  .flag-select-label {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--text3);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+  .flag-options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 18px;
+  }
+  .flag-option {
+    padding: 5px 12px;
+    border-radius: 6px;
+    font-family: var(--mono);
+    font-size: 11px;
+    font-weight: 700;
+    cursor: pointer;
+    border: 2px solid transparent;
+    transition: all 0.12s;
+    opacity: 0.6;
+  }
+  .flag-option:hover { opacity: 0.85; }
+  .flag-option.selected { border-color: currentColor; opacity: 1; }
+
+  .note-input {
+    width: 100%;
+    background: var(--surface3);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 10px 12px;
+    border-radius: 8px;
+    font-family: var(--mono);
+    font-size: 12px;
+    resize: vertical;
+    min-height: 70px;
+    outline: none;
+    margin-bottom: 16px;
+    transition: border-color 0.2s;
+  }
+  .note-input::placeholder { color: var(--text3); }
+  .note-input:focus { border-color: var(--amber-dim); }
+
+  .modal-actions { display: flex; gap: 8px; justify-content: flex-end; }
+  .btn-sm { padding: 7px 16px; font-size: 11px; }
+
+  /* ── NOTIFY TOAST ── */
+  .toast {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    background: var(--surface2);
+    border: 1px solid var(--border2);
+    border-left: 3px solid var(--amber);
+    padding: 12px 16px;
+    border-radius: 8px;
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--text);
+    z-index: 999;
+    transform: translateY(60px);
+    opacity: 0;
+    transition: all 0.25s;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+  }
+  .toast.show { transform: translateY(0); opacity: 1; }
+
+  /* ── STATS CARDS ── */
+  .stats-bar {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 10px;
+    margin-bottom: 22px;
+  }
+  .stat-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px 14px;
+  }
+  .stat-card-label {
+    font-family: var(--mono);
+    font-size: 9px;
+    color: var(--text3);
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+  .stat-card-value {
+    font-family: var(--display);
+    font-size: 22px;
+    font-weight: 800;
+    color: var(--text);
+    line-height: 1;
+  }
+  .stat-card-sub {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--text3);
+    margin-top: 2px;
+  }
+
+  /* ── EMPTY STATE ── */
+  .empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--text3);
+  }
+  .empty-state-icon { font-size: 40px; margin-bottom: 12px; }
+  .empty-state-text { font-family: var(--mono); font-size: 13px; }
+
+  /* ── SCROLLBAR ── */
+  ::-webkit-scrollbar { width: 4px; height: 4px; }
+  ::-webkit-scrollbar-track { background: var(--surface); }
+  ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
+
+  /* ── TRANSITIONS ── */
+  .fade-in { animation: fadeIn 0.3s ease forwards; }
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ── TYPE COLORS ── */
+  .type-gdoc { background: rgba(61,127,255,0.15); color: #7aadff; }
+  .type-docx { background: rgba(46,108,231,0.15); color: #82b4ff; }
+  .type-doc  { background: rgba(50,80,180,0.2);   color: #9eb4f0; }
+  .type-pdf  { background: rgba(231,76,60,0.15);  color: #ff8b82; }
+  .type-png  { background: rgba(46,204,113,0.15); color: #6febb0; }
+  .type-xls  { background: rgba(39,174,96,0.15);  color: #7fde9e; }
+  .type-folder { background: var(--amber-glow); color: var(--amber); }
+
+  .icon-gdoc { background: rgba(61,127,255,0.12); }
+  .icon-docx { background: rgba(46,108,231,0.12); }
+  .icon-doc  { background: rgba(50,80,180,0.15); }
+  .icon-pdf  { background: rgba(231,76,60,0.12); }
+  .icon-png  { background: rgba(46,204,113,0.12); }
+  .icon-xls  { background: rgba(39,174,96,0.12); }
+  .icon-folder { background: var(--amber-glow2); }
+
+  /* ── MOBILE TOPBAR HAMBURGER ── */
+  .mobile-topbar {
+    display: none;
+    position: sticky;
+    top: 0;
+    background: rgba(10,13,20,0.96);
+    backdrop-filter: blur(16px);
+    border-bottom: 1px solid var(--border);
+    padding: 10px 16px;
+    align-items: center;
+    gap: 10px;
+    z-index: 150;
+  }
+  .hamburger {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--text2);
+    width: 36px; height: 36px;
+    border-radius: 6px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: all 0.15s;
+  }
+  .hamburger:hover { border-color: var(--amber); color: var(--amber); }
+  .hamburger span {
+    display: block;
+    width: 16px; height: 2px;
+    background: currentColor;
+    border-radius: 1px;
+    transition: all 0.2s;
+  }
+  .hamburger.open span:nth-child(1) { transform: translateY(6px) rotate(45deg); }
+  .hamburger.open span:nth-child(2) { opacity: 0; }
+  .hamburger.open span:nth-child(3) { transform: translateY(-6px) rotate(-45deg); }
+
+  .mobile-logo {
+    font-family: var(--display);
+    font-size: 15px;
+    font-weight: 800;
+    color: var(--text);
+    letter-spacing: -0.5px;
+  }
+  .mobile-logo span { color: var(--amber); }
+
+  .mobile-search-wrap {
+    flex: 1;
+    position: relative;
+  }
+  .mobile-search-wrap .search-icon {
+    position: absolute;
+    left: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text3);
+    font-size: 13px;
+  }
+  .mobile-search-wrap .search-input {
+    width: 100%;
+    padding: 8px 10px 8px 30px;
+    font-size: 13px;
+  }
+
+  /* Sidebar overlay for mobile */
+  .sidebar-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.6);
+    z-index: 90;
+    backdrop-filter: blur(2px);
+  }
+  .sidebar-overlay.open { display: block; }
+
+  /* ── MOBILE TABLE: show only essential columns ── */
+  /* Hide Owner and Date on small screens, keep Name/Type/Status/Actions */
+  @media (max-width: 767px) {
+    /* Topbar swap */
+    .topbar { display: none; }
+    .mobile-topbar { display: flex; }
+
+    /* Sidebar becomes a drawer */
+    .sidebar {
+      transform: translateX(-100%);
+      transition: transform 0.25s cubic-bezier(0.4,0,0.2,1);
+      z-index: 100;
+      width: 260px;
+    }
+    .sidebar.open { transform: translateX(0); }
+
+    /* Main takes full width */
+    .main { margin-left: 0; }
+
+    /* Breadcrumb padding */
+    .breadcrumb-bar { padding: 10px 14px 0; }
+
+    /* Content padding tighter */
+    .content { padding: 14px 12px 40px; }
+
+    /* Stats bar: 2-column on mobile */
+    .stats-bar { grid-template-columns: repeat(2, 1fr); gap: 8px; margin-bottom: 14px; }
+    .stat-card { padding: 10px 12px; }
+    .stat-card-value { font-size: 18px; }
+
+    /* Flag filters: horizontal scroll */
+    .flag-filters { flex-wrap: nowrap; overflow-x: auto; padding-bottom: 4px; -webkit-overflow-scrolling: touch; }
+    .flag-filters::-webkit-scrollbar { height: 0; }
+    .flag-pill { flex-shrink: 0; }
+
+    /* Table wrapper: horizontal scroll */
+    .file-table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; border-radius: 8px; }
+    .file-table { min-width: 480px; }
+
+    /* Hide less-important columns */
+    .col-date, .col-owner { display: none; }
+    .file-table th:nth-child(3),
+    .file-table td:nth-child(3),
+    .file-table th:nth-child(4),
+    .file-table td:nth-child(4) { display: none; }
+
+    /* Row actions always visible on mobile (no hover) */
+    .row-actions { opacity: 1; }
+    .row-action-btn { width: 32px; height: 32px; font-size: 14px; }
+
+    /* Grid: 2 columns on mobile */
+    .file-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+    .grid-card { padding: 12px 10px 10px; }
+    .grid-icon { width: 36px; height: 36px; font-size: 16px; margin-bottom: 8px; }
+    .grid-name { font-size: 11px; }
+
+    /* Modal full-screen on mobile */
+    .modal {
+      width: 100%;
+      max-width: 100%;
+      max-height: 90vh;
+      overflow-y: auto;
+      border-radius: 16px 16px 0 0;
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      transform: translateY(100%);
+      margin: 0;
+    }
+    .modal-overlay.open .modal { transform: translateY(0); }
+    .modal-overlay { align-items: flex-end; }
+
+    /* Toast bottom offset on mobile (above safe area) */
+    .toast { bottom: 16px; right: 12px; left: 12px; right: 12px; text-align: center; }
+
+    /* Sort select smaller */
+    .topbar-actions .sort-select { font-size: 12px; padding: 6px 8px; }
+
+    /* Folder header stack */
+    .folder-header { flex-direction: column; gap: 8px; }
+    .folder-meta { flex-wrap: wrap; gap: 10px; }
+  }
+
+  /* ── TABLET (768–1024px) ── */
+  @media (min-width: 768px) and (max-width: 1024px) {
+    .sidebar { width: 200px; }
+    .main { margin-left: 200px; }
+    .topbar { padding: 10px 18px; }
+    .content { padding: 16px 18px 40px; }
+    .breadcrumb-bar { padding: 10px 18px 0; }
+    .stats-bar { grid-template-columns: repeat(3, 1fr); }
+    .file-grid { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }
+    /* Hide owner on tablet */
+    .file-table th:nth-child(4),
+    .file-table td:nth-child(4) { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<!-- MOBILE TOPBAR -->
+<div class="mobile-topbar" id="mobileTopbar">
+  <div class="hamburger" id="hamburger" onclick="toggleSidebar()">
+    <span></span><span></span><span></span>
+  </div>
+  <div class="mobile-logo">HABAGAT <span>BLIMP</span></div>
+  <div class="mobile-search-wrap">
+    <span class="search-icon">⌕</span>
+    <input class="search-input" type="text" placeholder="Search…" id="searchInputMobile" oninput="handleSearchMobile()">
+  </div>
+</div>
+
+<!-- SIDEBAR OVERLAY (mobile) -->
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+
+<!-- SIDEBAR -->
+<div class="sidebar" id="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-tag">▲ HAYABUSA TECH</div>
+    <div class="logo-name">HABAGAT<br>BLIMP</div>
+    <div class="logo-sub">PROJECT DRIVE · v1.0</div>
+  </div>
+
+  <div class="sidebar-section">
+    <div class="sidebar-section-label">Navigation</div>
+    <div class="nav-item active" onclick="setView('all')">
+      <span class="nav-icon">◉</span> All Files
+      <span class="nav-badge" id="badge-all">13</span>
+    </div>
+    <div class="nav-item" onclick="setView('folders')">
+      <span class="nav-icon">▣</span> Folders
+    </div>
+    <div class="nav-item" onclick="setView('recent')">
+      <span class="nav-icon">◷</span> Recent
+    </div>
+  </div>
+
+  <div class="sidebar-divider"></div>
+
+  <div class="sidebar-section">
+    <div class="sidebar-section-label">By Flag</div>
+    <div class="nav-item" onclick="filterByFlag('DONE')">
+      <span class="nav-icon" style="color:var(--green)">✔</span> Done
+      <span class="nav-badge" id="badge-done" style="background:var(--green);color:#000">0</span>
+    </div>
+    <div class="nav-item" onclick="filterByFlag('TO DO')">
+      <span class="nav-icon" style="color:var(--yellow)">○</span> To Do
+      <span class="nav-badge" id="badge-todo" style="background:var(--yellow);color:#000">0</span>
+    </div>
+    <div class="nav-item" onclick="filterByFlag('NEEDED')">
+      <span class="nav-icon" style="color:var(--red)">!</span> Needed
+      <span class="nav-badge" id="badge-needed" style="background:var(--red);color:#fff">0</span>
+    </div>
+    <div class="nav-item" onclick="filterByFlag('IN REVIEW')">
+      <span class="nav-icon" style="color:var(--purple)">◎</span> In Review
+      <span class="nav-badge" id="badge-review" style="background:var(--purple);color:#fff">0</span>
+    </div>
+    <div class="nav-item" onclick="filterByFlag('IN PROGRESS')">
+      <span class="nav-icon" style="color:var(--blue)">↻</span> In Progress
+      <span class="nav-badge" id="badge-wip" style="background:var(--blue);color:#fff">0</span>
+    </div>
+  </div>
+
+  <div class="sidebar-divider"></div>
+
+  <div class="sidebar-section">
+    <div class="sidebar-section-label">By Type</div>
+    <div class="nav-item" onclick="filterByType('GDOC')">
+      <span class="nav-icon">📄</span> Google Docs
+    </div>
+    <div class="nav-item" onclick="filterByType('DOCX')">
+      <span class="nav-icon">📝</span> Word Files
+    </div>
+    <div class="nav-item" onclick="filterByType('PDF')">
+      <span class="nav-icon">📕</span> PDFs
+    </div>
+    <div class="nav-item" onclick="filterByType('IMG')">
+      <span class="nav-icon">🖼</span> Images
+    </div>
+  </div>
+
+  <div class="sidebar-stats">
+    <div class="stat-row"><span>TOTAL FILES</span><span id="stat-total">13</span></div>
+    <div class="stat-row"><span>FOLDERS</span><span>7</span></div>
+    <div class="stat-row"><span>LAST UPDATED</span><span>APR 26</span></div>
+    <div class="stat-row"><span>PHASE</span><span style="color:var(--amber)">1 — WEEK 1</span></div>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+  <!-- TOPBAR -->
+  <div class="topbar">
+    <div class="search-wrap">
+      <span class="search-icon">⌕</span>
+      <input class="search-input" type="text" placeholder="Search files, folders, notes..." id="searchInput" oninput="handleSearch()">
+    </div>
+    <div class="topbar-actions">
+      <select class="sort-select" id="sortSelect" onchange="handleSort()">
+        <option value="name-asc">Name A→Z</option>
+        <option value="name-desc">Name Z→A</option>
+        <option value="date-desc">Newest First</option>
+        <option value="date-asc">Oldest First</option>
+        <option value="type">By Type</option>
+        <option value="flag">By Flag</option>
+        <option value="owner">By Owner</option>
+      </select>
+      <div class="view-toggle">
+        <button class="view-btn active" id="btnList" onclick="setViewMode('list')" title="List view">☰</button>
+        <button class="view-btn" id="btnGrid" onclick="setViewMode('grid')" title="Grid view">⊞</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- BREADCRUMB -->
+  <div class="breadcrumb-bar" id="breadcrumbBar">
+    <span class="breadcrumb-current">◉ Habagat Blimp Drive</span>
+  </div>
+
+  <!-- CONTENT -->
+  <div class="content">
+    <!-- STATS -->
+    <div class="stats-bar" id="statsBar">
+      <div class="stat-card">
+        <div class="stat-card-label">Total Files</div>
+        <div class="stat-card-value" id="sc-total">13</div>
+        <div class="stat-card-sub">across 7 folders</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-card-label">Done</div>
+        <div class="stat-card-value" id="sc-done" style="color:var(--green)">0</div>
+        <div class="stat-card-sub">completed</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-card-label">To Do</div>
+        <div class="stat-card-value" id="sc-todo" style="color:var(--yellow)">0</div>
+        <div class="stat-card-sub">pending action</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-card-label">Needed</div>
+        <div class="stat-card-value" id="sc-needed" style="color:var(--red)">0</div>
+        <div class="stat-card-sub">missing / required</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-card-label">In Progress</div>
+        <div class="stat-card-value" id="sc-wip" style="color:var(--blue)">0</div>
+        <div class="stat-card-sub">active work</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-card-label">Phase</div>
+        <div class="stat-card-value" style="font-size:16px;color:var(--amber)">WK 1</div>
+        <div class="stat-card-sub">Apr 20–26, 2026</div>
+      </div>
+    </div>
+
+    <!-- FLAG FILTERS -->
+    <div class="flag-filters" id="flagFilters">
+      <div class="flag-pill active" onclick="toggleFlagFilter('all', this)" style="border-color:var(--amber);color:var(--amber)">
+        <span class="dot" style="background:var(--amber)"></span> All
+      </div>
+      <div class="flag-pill" onclick="toggleFlagFilter('DONE', this)">
+        <span class="dot" style="background:var(--green)"></span> Done
+      </div>
+      <div class="flag-pill" onclick="toggleFlagFilter('TO DO', this)">
+        <span class="dot" style="background:var(--yellow)"></span> To Do
+      </div>
+      <div class="flag-pill" onclick="toggleFlagFilter('NEEDED', this)">
+        <span class="dot" style="background:var(--red)"></span> Needed
+      </div>
+      <div class="flag-pill" onclick="toggleFlagFilter('IN REVIEW', this)">
+        <span class="dot" style="background:var(--purple)"></span> In Review
+      </div>
+      <div class="flag-pill" onclick="toggleFlagFilter('IN PROGRESS', this)">
+        <span class="dot" style="background:var(--blue)"></span> In Progress
+      </div>
+      <div class="flag-pill" onclick="toggleFlagFilter('TEMPLATE', this)">
+        <span class="dot" style="background:var(--amber)"></span> Template
+      </div>
+      <div class="flag-pill" onclick="toggleFlagFilter('none', this)">
+        <span class="dot" style="background:var(--text3)"></span> Unflagged
+      </div>
+    </div>
+
+    <!-- FILE LIST / GRID -->
+    <div id="fileListContainer"></div>
+  </div>
+</div>
+
+<!-- FILE DETAIL MODAL -->
+<div class="modal-overlay" id="modalOverlay" onclick="closeModalOnBg(event)">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">File Details</div>
+      <div class="modal-close" onclick="closeModal()">✕</div>
+    </div>
+    <div id="modalContent"></div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ──────────────────────────────────────────────────────────────────────────
+// DATA
+// ──────────────────────────────────────────────────────────────────────────
+const FILES = [
+  // MEETING LOGS
+  {
+    id: 1, name: "April 18, 2026 MEETING AGENDA", type: "GDOC",
+    folder: "Meeting Logs", path: "Meeting Logs",
+    modified: "2026-04-26", owner: "javeshcadiao",
+    driveId: "1W0-qVwT8YPhNW0XQUFRm8EjsR-4KnbmqcjQ9qX6GrDA",
+    url: "https://docs.google.com/document/d/1W0-qVwT8YPhNW0XQUFRm8EjsR-4KnbmqcjQ9qX6GrDA/edit",
+    flag: "DONE", size: "7 KB",
+    note: "Week 1 task assignments, team roles, commitment form instructions.",
+    autoFlag: "DONE"
+  },
+  {
+    id: 2, name: "HABAGAT BLIMP Timeline and Plan", type: "GDOC",
+    folder: "Meeting Logs", path: "Meeting Logs",
+    modified: "2026-04-25", owner: "javeshcadiao",
+    driveId: "1i2mlfpGlC9Ds0OlKWAkzA08UpWoocD7lhXMcfCY4Sqs",
+    url: "https://docs.google.com/document/d/1i2mlfpGlC9Ds0OlKWAkzA08UpWoocD7lhXMcfCY4Sqs/edit",
+    flag: "IN PROGRESS", size: "34 KB",
+    note: "Phase 1–3 project timeline, 2026–2027. Version 1.0.",
+    autoFlag: "IN PROGRESS"
+  },
+  {
+    id: 3, name: "NOVA_BLIMP_Objectives_Funding_Roles", type: "GDOC",
+    folder: "Meeting Logs", path: "Meeting Logs",
+    modified: "2026-04-12", owner: "javeshcadiao",
+    driveId: "1_74UEtLBFVAW4zgZAlBWhW-TgPleyyzWD40_VRTDKZQ",
+    url: "https://docs.google.com/document/d/1_74UEtLBFVAW4zgZAlBWhW-TgPleyyzWD40_VRTDKZQ/edit",
+    flag: "IN REVIEW", size: "16 KB",
+    note: "⚠ Old name — uses NOVA BLIMP. Needs update to HABAGAT BLIMP. Internal only.",
+    autoFlag: "IN REVIEW"
+  },
+
+  // RESEARCH DOCUMENTS / WEEK 1
+  {
+    id: 4, name: "Hayabusa Task.docx", type: "DOCX",
+    folder: "WEEK 1", path: "Prototype Data Log › Research Documents › Week 1",
+    modified: "2026-04-26", owner: "javeshcadiao",
+    driveId: "13Jq_ohZYyUnLizgJe-F5kdADVxA0jUxp",
+    url: "https://drive.google.com/file/d/13Jq_ohZYyUnLizgJe-F5kdADVxA0jUxp/view",
+    flag: "DONE", size: "11 KB",
+    note: "CAAP permit requirements & DOST funding justification research. By Prince.",
+    autoFlag: "DONE"
+  },
+  {
+    id: 5, name: "ph startups or univ teams that pitched projects to dost.docx", type: "DOCX",
+    folder: "WEEK 1", path: "Prototype Data Log › Research Documents › Week 1",
+    modified: "2026-04-25", owner: "leeyahnleev",
+    driveId: "1Vv8yt9jse0vYyECQgrDIdcIhcULAAf-R",
+    url: "https://drive.google.com/file/d/1Vv8yt9jse0vYyECQgrDIdcIhcULAAf-R/view",
+    flag: "DONE", size: "208 KB",
+    note: "How PH startups pitched to DOST — what worked, red flags to avoid. By Lia.",
+    autoFlag: "DONE"
+  },
+  {
+    id: 6, name: "US20140374537A1.pdf", type: "PDF",
+    folder: "WEEK 1", path: "Prototype Data Log › Research Documents › Week 1",
+    modified: "2026-04-25", owner: "javeshcadiao",
+    driveId: "1Z4xaSUHMUtV7Jmo4rsJ0Q_MipKLpEJLA",
+    url: "https://drive.google.com/file/d/1Z4xaSUHMUtV7Jmo4rsJ0Q_MipKLpEJLA/view",
+    flag: "DONE", size: "942 KB",
+    note: "US Patent: Portable Airborne Multi-Mission Platform. Reference document.",
+    autoFlag: "DONE"
+  },
+
+  // RESEARCH DOCUMENTS
+  {
+    id: 7, name: "DRAFT FORM-2", type: "GDOC",
+    folder: "Research Documents", path: "Prototype Data Log › Research Documents",
+    modified: "2026-04-23", owner: "javeshcadiao",
+    driveId: "1-I7QJ9Zb52yh7vPS9XZ53LpWmj6reGdwVdBdrHSXw_E",
+    url: "https://docs.google.com/document/d/1-I7QJ9Zb52yh7vPS9XZ53LpWmj6reGdwVdBdrHSXw_E/edit",
+    flag: "IN PROGRESS", size: "23 KB",
+    note: "DOST Form 2 draft — being filled in. Not yet complete.",
+    autoFlag: "IN PROGRESS"
+  },
+
+  // PROTOTYPE DATA LOG
+  {
+    id: 8, name: "DRAFT MODEL 2D.png", type: "PNG",
+    folder: "Prototype Data Log", path: "Prototype Data Log",
+    modified: "2026-04-23", owner: "javeshcadiao",
+    driveId: "1xUrIQBpJIBQzc5CK5ChKRwOZ8RT_DnVR",
+    url: "https://drive.google.com/file/d/1xUrIQBpJIBQzc5CK5ChKRwOZ8RT_DnVR/view",
+    flag: "IN REVIEW", size: "172 KB",
+    note: "2D hull draft image. Needs team review before proceeding.",
+    autoFlag: "IN REVIEW"
+  },
+
+  // DOST FUNDINGS
+  {
+    id: 9, name: "Form-1-Detailed-Program-Proposal.doc", type: "DOC",
+    folder: "DOST FUNDINGS", path: "DOST FUNDINGS",
+    modified: "2026-03-25", owner: "javeshcadiao",
+    driveId: "1E1qLy2ACaxOnsaGL7evoxvqsssXa1nvV",
+    url: "https://drive.google.com/file/d/1E1qLy2ACaxOnsaGL7evoxvqsssXa1nvV/view",
+    flag: "TEMPLATE", size: "188 KB",
+    note: "DOST Form 1 — Detailed R&D Program Proposal (whole program). BLANK TEMPLATE.",
+    autoFlag: "TEMPLATE"
+  },
+  {
+    id: 10, name: "Form-2-Detailed-Project-Proposal-for-Startups.docx", type: "DOCX",
+    folder: "DOST FUNDINGS", path: "DOST FUNDINGS",
+    modified: "2026-03-25", owner: "javeshcadiao",
+    driveId: "1jJNXEvhdntDBAVPdkcfDkFI1R_se9TXk",
+    url: "https://drive.google.com/file/d/1jJNXEvhdntDBAVPdkcfDkFI1R_se9TXk/view",
+    flag: "TEMPLATE", size: "59 KB",
+    note: "DOST Form 2 blank template for startups. Do not edit — make a copy first.",
+    autoFlag: "TEMPLATE"
+  },
+  {
+    id: 11, name: "Form-5-Workplan.doc", type: "DOC",
+    folder: "DOST FUNDINGS", path: "DOST FUNDINGS",
+    modified: "2026-03-25", owner: "javeshcadiao",
+    driveId: "1PkVtEz1LDT1h0sVQ0zOufuvLvBdPFkAT",
+    url: "https://drive.google.com/file/d/1PkVtEz1LDT1h0sVQ0zOufuvLvBdPFkAT/view",
+    flag: "TEMPLATE", size: "197 KB",
+    note: "DOST Form 5 — Project Workplan, Expected Outputs, Risks & Assumptions. BLANK.",
+    autoFlag: "TEMPLATE"
+  },
+  {
+    id: 12, name: "Form-11-List-of-Personnel-Involved.doc", type: "DOC",
+    folder: "DOST FUNDINGS", path: "DOST FUNDINGS",
+    modified: "2026-03-25", owner: "javeshcadiao",
+    driveId: "15c0l2HxWuxUps7z7QdXoJWbxwamAMtl_",
+    url: "https://drive.google.com/file/d/15c0l2HxWuxUps7z7QdXoJWbxwamAMtl_/view",
+    flag: "TEMPLATE", size: "153 KB",
+    note: "DOST Form 11 — List of Personnel Involved. BLANK.",
+    autoFlag: "TEMPLATE"
+  },
+  {
+    id: 13, name: "Form-8-Semi-Annual-and-or-Annual-Financial-Report.xls", type: "XLS",
+    folder: "DOST FUNDINGS", path: "DOST FUNDINGS",
+    modified: "2026-03-25", owner: "javeshcadiao",
+    driveId: "1Sa7F8875GcOou2SVRr6sjhc4433qquxT",
+    url: "https://drive.google.com/file/d/1Sa7F8875GcOou2SVRr6sjhc4433qquxT/view",
+    flag: "TEMPLATE", size: "229 KB",
+    note: "DOST Form 8 — Semi-Annual / Annual Financial Report template. BLANK.",
+    autoFlag: "TEMPLATE"
+  },
+];
+
+const FOLDERS = [
+  { name: "Meeting Logs",       driveId: "1HqAuBPLrJfqbXEG-VrETPIY1o_8Cn5nY" },
+  { name: "Prototype Data Log", driveId: "1EI2UvfbMleADDgMr29RDITGwX2imUrCK" },
+  { name: "Research Documents", driveId: "1kJBsJ8D9RKDlW8DiS52e6DD5Z2C_Vshx" },
+  { name: "WEEK 1",             driveId: "19vKGfX8neACOYImFnSJz5wzNSSGoBg2y" },
+  { name: "DOST FUNDINGS",      driveId: "1CTXEM1p5fMqb8Gb6YNOfuMWtmWhBidJh" },
+  { name: "Project Timeline",   driveId: "1LXdnSILOSd_TZee4LTg12IjFpXWafBlx" },
+];
+
+// ── STATE ──────────────────────────────────────────────────────────────────
+let viewMode = 'list';
+let currentView = 'all';
+let currentFlagFilter = 'all';
+let currentTypeFilter = null;
+let sortKey = 'name-asc';
+let searchQuery = '';
+let userFlags = {};   // id -> flag (localStorage-backed)
+let userNotes = {};   // id -> note
+
+// Load from localStorage
+function loadStorage() {
+  try {
+    const f = localStorage.getItem('hb_flags');
+    const n = localStorage.getItem('hb_notes');
+    if (f) userFlags = JSON.parse(f);
+    if (n) userNotes = JSON.parse(n);
+  } catch(e) {}
+}
+function saveStorage() {
+  try {
+    localStorage.setItem('hb_flags', JSON.stringify(userFlags));
+    localStorage.setItem('hb_notes', JSON.stringify(userNotes));
+  } catch(e) {}
+}
+
+function getFlag(file) {
+  return userFlags[file.id] !== undefined ? userFlags[file.id] : file.flag;
+}
+function getNote(file) {
+  return userNotes[file.id] !== undefined ? userNotes[file.id] : file.note;
+}
+
+// ── TYPE HELPERS ───────────────────────────────────────────────────────────
+const TYPE_ICONS = {
+  GDOC: '📄', DOCX: '📝', DOC: '📃', PDF: '📕',
+  PNG: '🖼', XLS: '📊', FOLDER: '📁'
+};
+const TYPE_EMOJI = { GDOC:'📄', DOCX:'📝', DOC:'📃', PDF:'📕', PNG:'🖼', XLS:'📊' };
+
+function typeClass(type) {
+  return `type-${type.toLowerCase()}`;
+}
+function iconClass(type) {
+  return `icon-${type.toLowerCase()}`;
+}
+function typeLabel(type) {
+  const map = { GDOC:'GDoc', DOCX:'DOCX', DOC:'DOC', PDF:'PDF', PNG:'PNG', XLS:'XLS', FOLDER:'Folder' };
+  return map[type] || type;
+}
+
+function flagConfig(flag) {
+  const map = {
+    'DONE':        { cls: 'flag-done',     icon: '✔', label: 'Done' },
+    'TO DO':       { cls: 'flag-todo',     icon: '○', label: 'To Do' },
+    'NEEDED':      { cls: 'flag-needed',   icon: '!', label: 'Needed' },
+    'IN REVIEW':   { cls: 'flag-review',   icon: '◎', label: 'In Review' },
+    'IN PROGRESS': { cls: 'flag-wip',      icon: '↻', label: 'In Progress' },
+    'TEMPLATE':    { cls: 'flag-template', icon: '⬡', label: 'Template' },
+  };
+  return map[flag] || { cls: 'flag-none', icon: '–', label: '—' };
+}
+
+function formatDate(d) {
+  const dt = new Date(d);
+  return dt.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+}
+
+// ── SORTING ────────────────────────────────────────────────────────────────
+const FLAG_ORDER = { 'NEEDED':0, 'TO DO':1, 'IN PROGRESS':2, 'IN REVIEW':3, 'DONE':4, 'TEMPLATE':5, '':6 };
+
+function sortFiles(files) {
+  return [...files].sort((a, b) => {
+    switch(sortKey) {
+      case 'name-asc':  return a.name.localeCompare(b.name);
+      case 'name-desc': return b.name.localeCompare(a.name);
+      case 'date-desc': return new Date(b.modified) - new Date(a.modified);
+      case 'date-asc':  return new Date(a.modified) - new Date(b.modified);
+      case 'type':      return a.type.localeCompare(b.type) || a.name.localeCompare(b.name);
+      case 'flag': {
+        const fa = FLAG_ORDER[getFlag(a)] ?? 6;
+        const fb = FLAG_ORDER[getFlag(b)] ?? 6;
+        return fa - fb || a.name.localeCompare(b.name);
+      }
+      case 'owner': return a.owner.localeCompare(b.owner) || a.name.localeCompare(b.name);
+      default: return 0;
+    }
+  });
+}
+
+// ── FILTERING ──────────────────────────────────────────────────────────────
+function getFilteredFiles() {
+  let files = [...FILES];
+
+  if (searchQuery) {
+    const q = searchQuery.toLowerCase();
+    files = files.filter(f =>
+      f.name.toLowerCase().includes(q) ||
+      f.folder.toLowerCase().includes(q) ||
+      f.type.toLowerCase().includes(q) ||
+      getNote(f).toLowerCase().includes(q) ||
+      getFlag(f).toLowerCase().includes(q)
+    );
+  }
+
+  if (currentView === 'recent') {
+    files = [...files].sort((a,b) => new Date(b.modified)-new Date(a.modified)).slice(0,8);
+  }
+
+  if (currentFlagFilter !== 'all') {
+    if (currentFlagFilter === 'none') {
+      files = files.filter(f => !getFlag(f));
+    } else {
+      files = files.filter(f => getFlag(f) === currentFlagFilter);
+    }
+  }
+
+  if (currentTypeFilter) {
+    const t = currentTypeFilter;
+    if (t === 'IMG') {
+      files = files.filter(f => f.type === 'PNG');
+    } else if (t === 'WORD') {
+      files = files.filter(f => f.type === 'DOCX' || f.type === 'DOC');
+    } else {
+      files = files.filter(f => f.type === t);
+    }
+  }
+
+  return sortFiles(files);
+}
+
+// ── BADGE COUNTS ───────────────────────────────────────────────────────────
+function updateBadges() {
+  const counts = { DONE:0, 'TO DO':0, NEEDED:0, 'IN REVIEW':0, 'IN PROGRESS':0 };
+  FILES.forEach(f => {
+    const flag = getFlag(f);
+    if (counts[flag] !== undefined) counts[flag]++;
+  });
+  document.getElementById('badge-done').textContent   = counts['DONE'];
+  document.getElementById('badge-todo').textContent   = counts['TO DO'];
+  document.getElementById('badge-needed').textContent = counts['NEEDED'];
+  document.getElementById('badge-review').textContent = counts['IN REVIEW'];
+  document.getElementById('badge-wip').textContent    = counts['IN PROGRESS'];
+  document.getElementById('badge-all').textContent    = FILES.length;
+  document.getElementById('sc-done').textContent      = counts['DONE'];
+  document.getElementById('sc-todo').textContent      = counts['TO DO'];
+  document.getElementById('sc-needed').textContent    = counts['NEEDED'];
+  document.getElementById('sc-wip').textContent       = counts['IN PROGRESS'];
+  document.getElementById('stat-total').textContent   = FILES.length;
+}
+
+// ── RENDER ─────────────────────────────────────────────────────────────────
+function render() {
+  updateBadges();
+  const files = getFilteredFiles();
+  const container = document.getElementById('fileListContainer');
+  container.innerHTML = '';
+  container.className = 'fade-in';
+
+  if (files.length === 0) {
+    container.innerHTML = `<div class="empty-state">
+      <div class="empty-state-icon">📭</div>
+      <div class="empty-state-text">No files match your search or filter.</div>
+    </div>`;
+    return;
+  }
+
+  if (viewMode === 'list') {
+    renderList(files, container);
+  } else {
+    renderGrid(files, container);
+  }
+}
+
+function renderList(files, container) {
+  // Group by folder if showing all
+  const grouped = currentFlagFilter === 'all' && !searchQuery && currentView === 'all' && !currentTypeFilter;
+
+  if (grouped) {
+    const byFolder = {};
+    files.forEach(f => {
+      if (!byFolder[f.folder]) byFolder[f.folder] = [];
+      byFolder[f.folder].push(f);
+    });
+
+    // Define folder order
+    const order = ['Meeting Logs','Prototype Data Log','Research Documents','WEEK 1','DOST FUNDINGS'];
+    const folders = order.filter(fo => byFolder[fo]);
+    // Any remaining
+    Object.keys(byFolder).forEach(fo => { if (!folders.includes(fo)) folders.push(fo); });
+
+    folders.forEach(folder => {
+      const label = document.createElement('div');
+      label.className = 'section-label';
+      label.textContent = `📁 ${folder}`;
+      container.appendChild(label);
+
+      const wrap = document.createElement('div');
+      wrap.className = 'file-table-wrap';
+      wrap.innerHTML = buildTable(byFolder[folder]);
+      container.appendChild(wrap);
+    });
+  } else {
+    const wrap = document.createElement('div');
+    wrap.className = 'file-table-wrap';
+    wrap.innerHTML = buildTable(files);
+    container.appendChild(wrap);
+  }
+}
+
+function buildTable(files) {
+  const rows = files.map((f, i) => {
+    const flag = getFlag(f);
+    const fc = flagConfig(flag);
+    const note = getNote(f);
+    return `<tr class="file-row" onclick="openModal(${f.id})">
+      <td>
+        <div class="file-icon-name">
+          <div class="file-icon ${iconClass(f.type)}">${TYPE_ICONS[f.type]||'📄'}</div>
+          <div class="file-name-wrap">
+            <div class="file-name">${f.name}</div>
+            ${note ? `<div class="file-path">${note.length > 60 ? note.slice(0,60)+'…' : note}</div>` : ''}
+          </div>
+        </div>
+      </td>
+      <td><span class="file-type-badge ${typeClass(f.type)}">${typeLabel(f.type)}</span></td>
+      <td class="file-date">${formatDate(f.modified)}</td>
+      <td class="file-owner">${f.owner.replace('javeshcadiao','javeshcadiao').replace('leeyahnleev','leeyahnleev')}</td>
+      <td>
+        <span class="flag-badge ${fc.cls}" onclick="event.stopPropagation();quickFlag(${f.id}, this)">
+          ${fc.icon} ${fc.label}
+        </span>
+      </td>
+      <td>
+        <div class="row-actions">
+          <div class="row-action-btn" onclick="event.stopPropagation();openInDrive('${f.url}')" title="Open in Drive">↗</div>
+          <div class="row-action-btn" onclick="event.stopPropagation();openModal(${f.id})" title="Details">⋯</div>
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+
+  return `<table class="file-table">
+    <thead>
+      <tr>
+        <th onclick="setSort('name')" class="${sortKey.startsWith('name')?'sorted':''}">
+          Name <span class="sort-arrow">${sortKey==='name-asc'?'↑':sortKey==='name-desc'?'↓':'↕'}</span>
+        </th>
+        <th onclick="setSort('type')" class="${sortKey==='type'?'sorted':''}">Type</th>
+        <th onclick="setSort('date')" class="${sortKey.startsWith('date')?'sorted':''}">
+          Modified <span class="sort-arrow">${sortKey==='date-asc'?'↑':sortKey==='date-desc'?'↓':'↕'}</span>
+        </th>
+        <th onclick="setSort('owner')" class="${sortKey==='owner'?'sorted':''}">Owner</th>
+        <th onclick="setSort('flag')" class="${sortKey==='flag'?'sorted':''}">Status</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>${rows}</tbody>
+  </table>`;
+}
+
+function renderGrid(files, container) {
+  const grid = document.createElement('div');
+  grid.className = 'file-grid';
+
+  files.forEach(f => {
+    const flag = getFlag(f);
+    const fc = flagConfig(flag);
+    const card = document.createElement('div');
+    card.className = 'grid-card';
+    card.onclick = () => openModal(f.id);
+    card.innerHTML = `
+      <div class="grid-icon ${iconClass(f.type)}">${TYPE_ICONS[f.type]||'📄'}</div>
+      <div class="grid-name">${f.name}</div>
+      <div class="grid-meta">${typeLabel(f.type)} · ${f.folder}</div>
+      <div class="grid-meta">${formatDate(f.modified)}</div>
+      <div class="grid-flag"><span class="flag-badge ${fc.cls}">${fc.icon} ${fc.label}</span></div>
+    `;
+    grid.appendChild(card);
+  });
+
+  container.appendChild(grid);
+}
+
+// ── MODAL ──────────────────────────────────────────────────────────────────
+let activeFileId = null;
+
+function openModal(id) {
+  const f = FILES.find(x => x.id === id);
+  if (!f) return;
+  activeFileId = id;
+  const flag = getFlag(f);
+  const note = getNote(f);
+
+  const allFlags = ['DONE','TO DO','NEEDED','IN REVIEW','IN PROGRESS','TEMPLATE'];
+  const flagOptions = allFlags.map(fl => {
+    const fc = flagConfig(fl);
+    return `<div class="flag-option ${fc.cls} ${flag===fl?'selected':''}"
+      onclick="selectModalFlag(this,'${fl}')" data-flag="${fl}">
+      ${fc.icon} ${fc.label}
+    </div>`;
+  }).join('');
+
+  document.getElementById('modalContent').innerHTML = `
+    <div class="modal-file-icon ${iconClass(f.type)}">${TYPE_ICONS[f.type]||'📄'}</div>
+    <div class="modal-filename">${f.name}</div>
+    <div class="modal-filepath">📁 ${f.path}</div>
+
+    <div class="detail-grid">
+      <div class="detail-item">
+        <div class="detail-label">Type</div>
+        <div class="detail-value"><span class="file-type-badge ${typeClass(f.type)}">${typeLabel(f.type)}</span></div>
+      </div>
+      <div class="detail-item">
+        <div class="detail-label">Modified</div>
+        <div class="detail-value">${formatDate(f.modified)}</div>
+      </div>
+      <div class="detail-item">
+        <div class="detail-label">Owner</div>
+        <div class="detail-value">${f.owner}</div>
+      </div>
+      <div class="detail-item">
+        <div class="detail-label">Size</div>
+        <div class="detail-value">${f.size}</div>
+      </div>
+    </div>
+
+    <div class="flag-select-label">Status Flag</div>
+    <div class="flag-options" id="modalFlagOptions">${flagOptions}</div>
+
+    <div class="flag-select-label">Notes</div>
+    <textarea class="note-input" id="modalNote" placeholder="Add notes about this file...">${note}</textarea>
+
+    <div class="modal-actions">
+      <button class="btn btn-ghost btn-sm" onclick="openInDrive('${f.url}')">↗ Open in Drive</button>
+      <button class="btn btn-ghost btn-sm" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-primary btn-sm" onclick="saveModal(${id})">Save Changes</button>
+    </div>
+  `;
+
+  document.getElementById('modalOverlay').classList.add('open');
+}
+
+function selectModalFlag(el, flag) {
+  document.querySelectorAll('#modalFlagOptions .flag-option').forEach(x => x.classList.remove('selected'));
+  el.classList.add('selected');
+}
+
+function saveModal(id) {
+  const selectedEl = document.querySelector('#modalFlagOptions .flag-option.selected');
+  const newFlag = selectedEl ? selectedEl.dataset.flag : null;
+  const newNote = document.getElementById('modalNote').value;
+
+  if (newFlag) userFlags[id] = newFlag;
+  if (newNote !== undefined) userNotes[id] = newNote;
+  saveStorage();
+  closeModal();
+  render();
+  showToast('✔ File updated');
+}
+
+function closeModal() {
+  document.getElementById('modalOverlay').classList.remove('open');
+  activeFileId = null;
+}
+function closeModalOnBg(e) {
+  if (e.target === document.getElementById('modalOverlay')) closeModal();
+}
+
+// Quick flag cycle on badge click
+const FLAG_CYCLE = ['TO DO','IN PROGRESS','IN REVIEW','DONE','NEEDED','TEMPLATE',''];
+function quickFlag(id, el) {
+  const f = FILES.find(x => x.id === id);
+  const current = getFlag(f);
+  const idx = FLAG_CYCLE.indexOf(current);
+  const next = FLAG_CYCLE[(idx+1) % FLAG_CYCLE.length];
+  userFlags[id] = next;
+  saveStorage();
+  render();
+  showToast(`Flag → ${next || '(none)'}`);
+}
+
+// ── CONTROLS ───────────────────────────────────────────────────────────────
+function setViewMode(mode) {
+  viewMode = mode;
+  document.getElementById('btnList').classList.toggle('active', mode==='list');
+  document.getElementById('btnGrid').classList.toggle('active', mode==='grid');
+  render();
+}
+
+function setView(view) {
+  currentView = view;
+  currentFlagFilter = 'all';
+  currentTypeFilter = null;
+  searchQuery = '';
+  document.getElementById('searchInput').value = '';
+  document.querySelectorAll('.nav-item').forEach(x => x.classList.remove('active'));
+  event.currentTarget.classList.add('active');
+
+  // Reset flag pills
+  document.querySelectorAll('.flag-pill').forEach((p,i) => p.classList.toggle('active', i===0));
+
+  // Update breadcrumb
+  const bc = document.getElementById('breadcrumbBar');
+  if (view === 'recent') {
+    bc.innerHTML = `<span class="breadcrumb-item" onclick="setView('all')">◉ Habagat Blimp Drive</span>
+      <span class="breadcrumb-sep">›</span>
+      <span class="breadcrumb-current">Recent</span>`;
+  } else {
+    bc.innerHTML = `<span class="breadcrumb-current">◉ Habagat Blimp Drive</span>`;
+  }
+  render();
+}
+
+function filterByFlag(flag) {
+  currentFlagFilter = flag;
+  currentTypeFilter = null;
+  currentView = 'all';
+  // Update pill
+  document.querySelectorAll('.flag-pill').forEach(p => {
+    p.classList.toggle('active', p.textContent.trim().toUpperCase().includes(flag.replace('IN ','').replace(' ','').slice(0,4)));
+  });
+  render();
+}
+
+function filterByType(type) {
+  currentTypeFilter = type;
+  currentFlagFilter = 'all';
+  render();
+}
+
+function toggleFlagFilter(flag, el) {
+  document.querySelectorAll('.flag-pill').forEach(p => p.classList.remove('active'));
+  el.classList.add('active');
+  currentFlagFilter = flag;
+  render();
+}
+
+function handleSearch() {
+  searchQuery = document.getElementById('searchInput').value.trim();
+  render();
+}
+
+function handleSort() {
+  sortKey = document.getElementById('sortSelect').value;
+  render();
+}
+
+function setSort(field) {
+  if (field === 'name') {
+    sortKey = sortKey === 'name-asc' ? 'name-desc' : 'name-asc';
+  } else if (field === 'date') {
+    sortKey = sortKey === 'date-desc' ? 'date-asc' : 'date-desc';
+  } else {
+    sortKey = field;
+  }
+  document.getElementById('sortSelect').value = sortKey;
+  render();
+}
+
+function openInDrive(url) {
+  window.open(url, '_blank');
+}
+
+// ── TOAST ──────────────────────────────────────────────────────────────────
+let toastTimer;
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 2200);
+}
+
+// ── ESC TO CLOSE MODAL ─────────────────────────────────────────────────────
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') closeModal();
+  if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+    e.preventDefault();
+    document.getElementById('searchInput').focus();
+  }
+});
+
+// ── MOBILE SIDEBAR ─────────────────────────────────────────────────────────
+function toggleSidebar() {
+  const sidebar = document.getElementById('sidebar');
+  const overlay = document.getElementById('sidebarOverlay');
+  const hamburger = document.getElementById('hamburger');
+  const isOpen = sidebar.classList.toggle('open');
+  overlay.classList.toggle('open', isOpen);
+  hamburger.classList.toggle('open', isOpen);
+}
+function closeSidebar() {
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('sidebarOverlay').classList.remove('open');
+  document.getElementById('hamburger').classList.remove('open');
+}
+
+// Close sidebar on nav item click on mobile
+document.addEventListener('click', function(e) {
+  const navItem = e.target.closest('.nav-item');
+  if (navItem && window.innerWidth < 768) {
+    setTimeout(closeSidebar, 150);
+  }
+});
+
+// Sync mobile search input with desktop search
+function handleSearchMobile() {
+  searchQuery = document.getElementById('searchInputMobile').value.trim();
+  const desktopInput = document.getElementById('searchInput');
+  if (desktopInput) desktopInput.value = searchQuery;
+  render();
+}
+
+// Keep both search inputs in sync
+const origHandleSearch = handleSearch;
+handleSearch = function() {
+  origHandleSearch();
+  const mobileInput = document.getElementById('searchInputMobile');
+  if (mobileInput) mobileInput.value = searchQuery;
+};
+
+// ── INIT ───────────────────────────────────────────────────────────────────
+loadStorage();
+
+// Auto-sort: default to "By Flag" for a smarter first view — shows urgency
+sortKey = 'flag';
+document.getElementById('sortSelect').value = 'flag';
+
+render();
+</script>
+</body>
+</html>
